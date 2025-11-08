@@ -16,6 +16,7 @@ import js.Browser;
 #end
 
 @:access(openfl.text._internal.TextEngine)
+@:access(openfl.display.BitmapData)
 @:access(openfl.display.Graphics)
 @:access(openfl.geom.Matrix)
 @:access(openfl.text.TextField)
@@ -325,6 +326,19 @@ class CanvasTextField
 							context.stroke();
 							context.closePath();
 						}
+
+						if (group.format.strikethrough)
+						{
+							context.beginPath();
+							context.strokeStyle = color;
+							context.lineWidth = 1;
+							var x = group.offsetX + scrollX - bounds.x;
+							var y = Math.ceil(group.offsetY + scrollY + 2.0 * group.ascent / 3.0 - bounds.y);
+							context.moveTo(x, y);
+							context.lineTo(x + group.width, y);
+							context.stroke();
+							context.closePath();
+						}
 					}
 				}
 				else
@@ -375,17 +389,28 @@ class CanvasTextField
 					}
 				}
 
-				// Clear old cache immediately.
-				if(graphics.__bitmap != null)
+				if (graphics.__bitmap == null)
 				{
-					if(graphics.__bitmap.__texture != null)
-						graphics.__bitmap.__texture.dispose();
-
-					graphics.__bitmap.dispose();
+					graphics.__bitmap = BitmapData.fromCanvas(graphics.__canvas);
+				}
+				else if (graphics.__bitmap.width != graphics.__canvas.width || graphics.__bitmap.height != graphics.__canvas.height)
+				{
+					var texture = graphics.__bitmap.__texture;
+					if (texture != null)
+					{
+						texture.dispose();
+					}
+					graphics.__bitmap = BitmapData.fromCanvas(graphics.__canvas);
+				}
+				else
+				{
+					// optimization: if the size of the canvas hasn't changed,
+					// we can re-use the same BitmapData.
+					graphics.__bitmap.image.version++;
 				}
 
-				graphics.__bitmap = BitmapData.fromCanvas(textField.__graphics.__canvas);
-				graphics.__bitmapScale = pixelRatio;
+				graphics.__bitmapScaleX = pixelRatio;
+				graphics.__bitmapScaleY = pixelRatio;
 				graphics.__visible = true;
 				textField.__dirty = false;
 				graphics.__softwareDirty = false;

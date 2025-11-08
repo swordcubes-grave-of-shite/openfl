@@ -698,6 +698,14 @@ class TextField extends InteractiveObject
 	**/
 	public var wordWrap(get, set):Bool;
 
+	/**
+		The character to be displayed when displayAsPassword is set to true.
+		The default value is `*`.
+
+		The `passwordChar` property is ignored in Flash Player and AIR targets.
+	**/
+	public var passwordChar(get, set):String;
+
 	@:noCompletion private var __wordSelection:Bool;
 	@:noCompletion private var __lineSelection:Bool;
 	@:noCompletion private var __specialSelectionInitialIndex:Int;
@@ -706,6 +714,7 @@ class TextField extends InteractiveObject
 	@:noCompletion private var __cursorTimer:Timer;
 	@:noCompletion private var __dirty:Bool;
 	@:noCompletion private var __displayAsPassword:Bool;
+	@:noCompletion private var __passwordChar:String;
 	@:noCompletion private var __domRender:Bool;
 	@:noCompletion private var __inputEnabled:Bool;
 	@:noCompletion private var __isHTML:Bool;
@@ -763,6 +772,10 @@ class TextField extends InteractiveObject
 			"displayAsPassword": {
 				get: untyped #if haxe4 js.Syntax.code #else __js__ #end ("function () { return this.get_displayAsPassword (); }"),
 				set: untyped #if haxe4 js.Syntax.code #else __js__ #end ("function (v) { return this.set_displayAsPassword (v); }")
+			},
+			"passwordChar": {
+				get: untyped #if haxe4 js.Syntax.code #else __js__ #end ("function () { return this.get_passwordChar (); }"),
+				set: untyped #if haxe4 js.Syntax.code #else __js__ #end ("function (v) { return this.set_passwordChar (v); }")
 			},
 			"embedFonts": {
 				get: untyped #if haxe4 js.Syntax.code #else __js__ #end ("function () { return this.get_embedFonts (); }"),
@@ -850,10 +863,18 @@ class TextField extends InteractiveObject
 
 		__wordSelection = false;
 		__drawableType = TEXT_FIELD;
-		__caretIndex = -1;
-		__selectionIndex = -1;
+		__caretIndex = 0;
+		__selectionIndex = 0;
 		__displayAsPassword = false;
+		__passwordChar = "*";
 		__graphics = new Graphics(this);
+		#if (js && html5)
+		// Graphics adds an implicit moveTo(0, 0) for HTML Canvas, but we need
+		// an empty command buffer for TextField or it won't render correctly.
+		// calling clear() adds moveTo(0, 0) as the first command again, so just
+		// clear the command buffer directly.
+		__graphics.__commands.clear();
+		#end
 		__textEngine = new TextEngine(this);
 		__layoutDirty = true;
 		__offsetX = 0;
@@ -1164,7 +1185,11 @@ class TextField extends InteractiveObject
 	{
 		__updateLayout();
 
-		if (lineIndex < 0 || lineIndex > __textEngine.numLines - 1) return -1;
+		if (lineIndex < 0)
+		{
+			throw new RangeError();
+		}
+		if (lineIndex > __textEngine.numLines - 1) return -1;
 
 		for (group in __textEngine.layoutGroups)
 		{
@@ -1190,7 +1215,11 @@ class TextField extends InteractiveObject
 	{
 		__updateLayout();
 
-		if (lineIndex < 0 || lineIndex > __textEngine.numLines - 1) return null;
+		if (lineIndex < 0)
+		{
+			throw new RangeError();
+		}
+		if (lineIndex > __textEngine.numLines - 1) return null;
 
 		var startIndex = -1;
 		var endIndex = -1;
@@ -2372,6 +2401,9 @@ class TextField extends InteractiveObject
 	{
 		if (stage == null) return;
 
+		var oldScrollH = scrollH;
+		var oldScrollV = scrollV;
+
 		var bounds:Rectangle = this.getBounds(this);
 
 		if (mouseX > bounds.width - 1)
@@ -2397,7 +2429,15 @@ class TextField extends InteractiveObject
 			}
 			__mouseScrollVCounter = 0;
 		}
-		stage_onMouseMove(null);
+
+		// if the scroll position changed, then we may need to update selection.
+		// however, we shouldn't call it if the scroll position hasn't changed
+		// because that might overwrite the values of a recent call to the
+		// setSelection() method.
+		if (scrollH != oldScrollH || scrollV != oldScrollV)
+		{
+			stage_onMouseMove(null);
+		}
 	}
 
 	@:noCompletion private function __updateScrollH():Void
@@ -2589,7 +2629,7 @@ class TextField extends InteractiveObject
 
 			for (i in 0...length)
 			{
-				mask += "*";
+				mask += __passwordChar;
 			}
 
 			__textEngine.text = mask;
@@ -3252,6 +3292,23 @@ class TextField extends InteractiveObject
 		return __textEngine.wordWrap = value;
 	}
 
+	@:noCompletion private function get_passwordChar():String
+	{
+		return __passwordChar;
+	}
+
+	@:noCompletion private function set_passwordChar(value:String):String
+	{
+		if (value != __passwordChar)
+		{
+			__passwordChar = value;
+			__setRenderDirty();
+			__updateText(__text);
+		}
+
+		return value;
+	}
+
 	@:noCompletion private override function get_x():Float
 	{
 		return __transform.tx + __offsetX;
@@ -3285,8 +3342,19 @@ class TextField extends InteractiveObject
 		{
 			__updateLayout();
 
-			var position = if (__lineSelection) __getPositionByIdentifier(mouseX + scrollH, mouseY,
-				true) else if (__wordSelection) __getPositionByIdentifier(mouseX + scrollH, mouseY, false) else __getPosition(mouseX + scrollH, mouseY);
+			var position:Int;
+			if (__lineSelection)
+			{
+				position = __getPositionByIdentifier(mouseX + scrollH, mouseY, true);
+			}
+			else if (__wordSelection)
+			{
+				position = __getPositionByIdentifier(mouseX + scrollH, mouseY, false);
+			}
+			else
+			{
+				position = __getPosition(mouseX + scrollH, mouseY);
+			}
 
 			if (position != __caretIndex)
 			{
@@ -3334,18 +3402,26 @@ class TextField extends InteractiveObject
 			__getWorldTransform();
 			__updateLayout();
 
-			var upPos:Int = if (__lineSelection) __getPositionByIdentifier(mouseX + scrollH, mouseY,
-				true) else if (__wordSelection) __getPositionByIdentifier(mouseX + scrollH, mouseY, false) else __getPosition(mouseX + scrollH, mouseY);
-			var leftPos:Int;
-			var rightPos:Int;
+			if (__lineSelection || __wordSelection)
+			{
+				var upPos:Int = 0;
+				if (__lineSelection)
+				{
+					upPos = __getPositionByIdentifier(mouseX + scrollH, mouseY, true);
+				}
+				else if (__wordSelection)
+				{
+					upPos = __getPositionByIdentifier(mouseX + scrollH, mouseY, false);
+				}
+				var leftPos:Int = Std.int(Math.min(__selectionIndex, upPos));
+				var rightPos:Int = Std.int(Math.max(__selectionIndex, upPos));
 
-			leftPos = Std.int(Math.min(__selectionIndex, upPos));
-			rightPos = Std.int(Math.max(__selectionIndex, upPos));
+				__selectionIndex = leftPos;
+				__caretIndex = rightPos;
+			}
 
-			__selectionIndex = leftPos;
-			__caretIndex = rightPos;
-
-			__wordSelection = __lineSelection = false;
+			__wordSelection = false;
+			__lineSelection = false;
 
 			if (__inputEnabled)
 			{
