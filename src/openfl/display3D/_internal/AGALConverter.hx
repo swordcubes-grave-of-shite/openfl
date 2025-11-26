@@ -463,17 +463,17 @@ class AGALConverter
 								sr1.sourceMask = 0x3;
 								map.addSaR(sampler, RegisterUsage.SAMPLER_2D_ALPHA);
 								sb.add("if (" + sampler.toGLSL() + "_alphaEnabled) {\n");
-								sb.add("\t\t" + dr.toGLSL() + " = vec4(texture(" + sampler.toGLSL() + ", " + sr1.toGLSL() + ").xyz, texture("
+								sb.add("\t\t" + dr.toGLSL() + " = vec4(texture2D(" + sampler.toGLSL() + ", " + sr1.toGLSL() + ").xyz, texture2D("
 									+ sampler.toGLSL() + "_alpha, " + sr1.toGLSL() + ").x); // tex + alpha\n");
 								sb.add("\t} else {\n");
-								sb.add("\t\t" + dr.toGLSL() + " = texture(" + sampler.toGLSL() + ", " + sr1.toGLSL() + "); // tex\n");
+								sb.add("\t\t" + dr.toGLSL() + " = texture2D(" + sampler.toGLSL() + ", " + sr1.toGLSL() + "); // tex\n");
 								sb.add("\t}");
 							}
 							else
 							{
 								sr1.sourceMask = 0x3;
 								map.addSaR(sampler, RegisterUsage.SAMPLER_2D);
-								sb.add(dr.toGLSL() + " = texture(" + sampler.toGLSL() + ", " + sr1.toGLSL() + "); // tex");
+								sb.add(dr.toGLSL() + " = texture2D(" + sampler.toGLSL() + ", " + sr1.toGLSL() + "); // tex");
 							}
 
 						case 1: // cube texture
@@ -641,7 +641,7 @@ private class DestRegister
 
 		if (type == RegisterType.OUTPUT)
 		{
-			str = programType == ProgramType.VERTEX ? "gl_Position" : "ofl_FragColor";
+			str = programType == ProgramType.VERTEX ? "gl_Position" : "gl_FragColor";
 		}
 		else
 		{
@@ -1053,7 +1053,7 @@ private class SourceRegister
 	{
 		if (type == RegisterType.OUTPUT)
 		{
-			return programType == ProgramType.VERTEX ? "gl_Position" : "ofl_FragColor";
+			return programType == ProgramType.VERTEX ? "gl_Position" : "gl_FragColor";
 		}
 
 		var fullxyzw = (s == 228) && (sourceMask == 0xF);

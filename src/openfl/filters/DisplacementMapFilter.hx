@@ -395,38 +395,52 @@ import lime.math.Vector4;
 #end
 private class DisplacementMapShader extends BitmapFilterShader
 {
-	@:glFragmentSource("#pragma header
+	@:glFragmentSource("
+
+		uniform sampler2D openfl_Texture;
 		uniform sampler2D mapTexture;
+
+		uniform mat4 openfl_Matrix;
 
 		uniform vec4 uOffsets;
 		uniform mat4 uDisplacements;
 
-		in vec2 mapTextureCoords;
+		varying vec2 openfl_TextureCoordV;
+		varying vec2 mapTextureCoords;
 
 		void main(void) {
 
-			vec4 map_color = texture(mapTexture, mapTextureCoords);
+			vec4 map_color = texture2D(mapTexture, mapTextureCoords);
 			vec4 map_color_mod = map_color - uOffsets;
 
 			map_color_mod = map_color_mod * vec4(map_color.w, map_color.w, 1.0, 1.0);
 
 			vec4 displacements_multiplied = map_color_mod * uDisplacements;
-			vec4 result = vec4(openfl_TextureCoordv.x, openfl_TextureCoordv.y, 0.0, 1.0) + displacements_multiplied;
+			vec4 result = vec4(openfl_TextureCoordV.x, openfl_TextureCoordV.y, 0.0, 1.0) + displacements_multiplied;
 
-			ofl_FragColor = texture(openfl_Texture, vec2(result));
+			gl_FragColor = texture2D(openfl_Texture, vec2(result));
 
 		}
 
 	")
-	@:glVertexSource("#pragma header
+	@:glVertexSource("
+
+		uniform mat4 openfl_Matrix;
+
 		uniform vec2 mapTextureCoordsOffset;
-		out vec2 mapTextureCoords;
+
+		attribute vec4 openfl_Position;
+		attribute vec2 openfl_TextureCoord;
+
+		varying vec2 openfl_TextureCoordV;
+
+		varying vec2 mapTextureCoords;
 
 		void main(void) {
 
 			gl_Position = openfl_Matrix * openfl_Position;
 
-			openfl_TextureCoordv = openfl_TextureCoord;
+			openfl_TextureCoordV = openfl_TextureCoord;
 			mapTextureCoords = openfl_TextureCoord - mapTextureCoordsOffset;
 
 		}

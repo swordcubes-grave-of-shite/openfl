@@ -116,7 +116,7 @@ class ShaderMacro
 			var shaderDataFields:Array<Field> = [];
 			var uniqueFields:Array<Field> = [];
 
-			processFields(glVertexSource, "in", shaderDataFields, pos);
+			processFields(glVertexSource, "attribute", shaderDataFields, pos);
 			processFields(glVertexSource, "uniform", shaderDataFields, pos);
 			processFields(glFragmentSource, "uniform", shaderDataFields, pos);
 
@@ -212,7 +212,7 @@ class ShaderMacro
 		}
 		else
 		{
-			regex = ~/in ([A-Za-z0-9]+) ([A-Za-z0-9_]+)/;
+			regex = ~/attribute ([A-Za-z0-9]+) ([A-Za-z0-9_]+)/;
 		}
 
 		var fieldAccess:Access;

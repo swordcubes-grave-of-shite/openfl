@@ -559,17 +559,21 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 #end
 private class HideShader extends BitmapFilterShader
 {
-	@:glFragmentSource("#pragma header
+	@:glFragmentSource("
+		uniform sampler2D openfl_Texture;
 		uniform sampler2D sourceBitmap;
-		in vec4 textureCoords;
+		varying vec4 textureCoords;
 
 		void main(void) {
-			ofl_FragColor = texture(openfl_Texture, textureCoords.zw);
+			gl_FragColor = texture2D(openfl_Texture, textureCoords.zw);
 		}
 	")
-	@:glVertexSource("#pragma header
+	@:glVertexSource("attribute vec4 openfl_Position;
+		attribute vec2 openfl_TextureCoord;
+		uniform mat4 openfl_Matrix;
+		uniform vec2 openfl_TextureSize;
 		uniform vec2 offset;
-		out vec4 textureCoords;
+		varying vec4 textureCoords;
 
 		void main(void) {
 			gl_Position = openfl_Matrix * openfl_Position;
