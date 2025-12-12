@@ -297,41 +297,37 @@ class DisplayObjectRenderer extends EventDispatcher
 			}
 			#end
 
-			if (hasFilters && !needRender)
+			if (hasFilters)
 			{
-				var affineChanged:Bool = updateTransform
-					&& __affineChanged(displayObject.__cacheBitmap.__worldTransform, displayObject.__worldTransform);
-
-				for (filter in displayObject.__filters)
+				if (!needRender)
 				{
-					if (filter.__renderDirty)
-					{
-						needRender = true;
-						break;
-					}
-					if (affineChanged && __isShaderFilter(filter))
-					{
-						// Make sure all of the bitmap data caches are disposed of
-						for (cache in [displayObject.__cacheBitmapData, displayObject.__cacheBitmapData2, displayObject.__cacheBitmapData3])
-						{
-							if (cache != null)
-							{
-								if (cache.__texture != null)
-									cache.__texture.dispose();
-								
-								cache.disposeImage();
-								cache.dispose();
-							}
-						}
-						// Then null them all out (including color transform cache) for the GC to pick up later
-						displayObject.__cacheBitmap = null;
-						displayObject.__cacheBitmapData = null;
-						displayObject.__cacheBitmapData2 = null;
-						displayObject.__cacheBitmapData3 = null;
-						displayObject.__cacheBitmapColorTransform = null;
+					var affineChanged:Bool = updateTransform
+						&& __affineChanged(displayObject.__cacheBitmap.__worldTransform, displayObject.__worldTransform);
 
-						needRender = true;
-						break;
+					for (filter in displayObject.__filters)
+					{
+						if (filter.__renderDirty)
+						{
+							needRender = true;
+							break;
+						}
+						if (affineChanged && __isShaderFilter(filter))
+						{
+                            displayObject.__cacheBitmapData = null;
+							needRender = true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for (filter in displayObject.__filters)
+					{
+						if (__isShaderFilter(filter))
+						{
+							displayObject.__cacheBitmapData = null;
+							break;
+						}
 					}
 				}
 			}
