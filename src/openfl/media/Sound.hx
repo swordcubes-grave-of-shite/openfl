@@ -348,6 +348,16 @@ class Sound extends EventDispatcher
 			__buffer.dispose();
 			__buffer = null;
 		}
+		if (__pendingAudioSource != null)
+		{
+		    __pendingAudioSource.dispose();
+			__pendingAudioSource = null;
+		}
+		if (__pendingSoundChannel != null)
+		{
+		    __pendingSoundChannel.stop();
+			__pendingSoundChannel = null;
+		}
 		#end
 	}
 
@@ -793,7 +803,7 @@ class Sound extends EventDispatcher
 
 				var q = samples / sampleRate;
 				var m = samples - q * sampleRate;
-				
+
 				var value = (q + (m / __buffer.sampleRate));
 				return value;
 			}
