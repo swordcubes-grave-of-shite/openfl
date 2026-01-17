@@ -788,7 +788,11 @@ class BitmapData implements IBitmapDrawable
 		__vertexBuffer = null;
 		__framebuffer = null;
 		__framebufferContext = null;
-		__texture = null;
+
+		if(__texture != null) {
+		    __texture.dispose();
+		    __texture = null;
+		}
 		__textureContext = null;
 
 		// if (__texture != null) {
