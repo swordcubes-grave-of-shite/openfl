@@ -15,7 +15,6 @@ import openfl.events.FocusEvent;
 import openfl.events.FullScreenEvent;
 import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
-import openfl.events.StageOrientationEvent;
 import openfl.events.TextEvent;
 import openfl.events.TouchEvent;
 import openfl.events.UncaughtErrorEvent;
@@ -43,9 +42,6 @@ import lime.ui.KeyModifier;
 import lime.ui.MouseCursor as LimeMouseCursor;
 import lime.ui.MouseWheelMode;
 import lime.ui.Window;
-#if (lime >= "8.3.0")
-import lime.system.Orientation;
-#end
 #end
 #if hxtelemetry
 import openfl.profiler.Telemetry;
@@ -71,8 +67,8 @@ typedef Element = Dynamic;
 	The Stage object is not globally accessible. You need to access it
 	through the `stage` property of a DisplayObject instance.
 
-	The Stage class has several ancestor classes — DisplayObjectContainer,
-	InteractiveObject, DisplayObject, and EventDispatcher — from which it
+	The Stage class has several ancestor classes  -  DisplayObjectContainer,
+	InteractiveObject, DisplayObject, and EventDispatcher  -  from which it
 	inherits properties and methods. Many of these properties and methods are
 	either inapplicable to Stage objects, or require security checks when
 	called on a Stage object. The properties and methods that require security
@@ -196,46 +192,6 @@ typedef Element = Dynamic;
 class Stage extends DisplayObjectContainer #if lime implements IModule #end
 {
 	/**
-		Whether the application supports changes in the stage orientation (and
-		device rotation).
-
-		@see `Stage.orientation`
-		@see `Stage.deviceOrientation`
-		@see `Stage.autoOrients`
-		@see `Stage.setOrientation`
-		@see `Stage.supportedOrientations`
-	**/
-	public static var supportsOrientationChange(get, never):Bool;
-
-	/**
-		Specifies whether the stage automatically changes orientation when the
-		device orientation changes.
-
-		The initial value of this property is derived from the `autoOrients`
-		element of the application descriptor and defaults to `false`. When
-		changing the property to `false`, the behavior is not guaranteed. On
-		some devices, the stage remains in the current orientation. On others,
-		the stage orientation changes to a device-defined "standard"
-		orientation, after which, no further stage orientation changes occur.
-
-		_OpenFL target support:_ May be set when targeting Adobe AIR only.
-		Always returns `false` on all other targets. Orientation may be
-		restricted at build-time only in a project.xml file using
-		`<app orientation="landscape"/>` or `<app orientation="portrait"/>`.
-
-		_Adobe AIR profile support:_ This feature is supported on mobile
-		devices, but it is not supported on desktop operating systems or AIR for
-		TV devices. You can test for support at run time using the
-		`Stage.supportsOrientationChange` property. See
-		[AIR Profile Support](http://help.adobe.com/en_US/air/build/WS144092a96ffef7cc16ddeea2126bb46b82f-8000.html)
-		for more information regarding API support across multiple profiles.
-
-		@see `Stage.supportsOrientationChange`
-		@see `Stage.orientation`
-	**/
-	public var autoOrients(get, set):Bool;
-
-	/**
 		A value from the StageAlign class that specifies the alignment of the
 		stage in Flash Player or the browser. The following are valid values:
 
@@ -349,33 +305,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		This property is supported only when using hardware rendering.
 	**/
 	public var context3D(default, null):Context3D;
-
-	/**
-		The physical orientation of the device.
-
-		On devices with slide-out keyboards, the state of the keyboard has a
-		higher priority in determining the device orientation than the rotation
-		detected by the accelerometer. Thus on a portrait-aspect device with a
-		side-mounted keyboard, the `deviceOrientation` property will report
-		`ROTATED_LEFT` when the keyboard is open no matter how the user is
-		holding the device.
-
-		Use the constants defined in the StageOrientation class when setting or
-		comparing values for this property.
-
-		_OpenFL target support:_ This feature is supported on iOS and Android
-		mobile devices, but it is not supported on desktop operating systems.
-		You can test for support at run time using the
-		`Stage.supportsOrientationChange` property.
-
-		_AIR profile support:_ This feature is supported on mobile devices, but
-		it is not supported on desktop operating systems or AIR for TV devices.
-		You can test for support at run time using the
-		`Stage.supportsOrientationChange` property. See
-		[AIR Profile Support](http://help.adobe.com/en_US/air/build/WS144092a96ffef7cc16ddeea2126bb46b82f-8000.html)
-		for more information regarding API support across multiple profiles.
-	**/
-	public var deviceOrientation(get, never):StageOrientation;
 
 	// @:noCompletion @:dox(hide) @:require(flash11) public var displayContextInfo (default, null):String;
 
@@ -586,22 +515,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	public var fullScreenWidth(get, never):UInt;
 
 	// @:noCompletion @:dox(hide) @:require(flash11_2) public var mouseLock:Bool;
-
-	/**
-		The current orientation of the stage. This property is set to one of
-		four values, defined as constants in the StageOrientation class:
-
-		| StageOrientation constant        | Stage orientation                                         |
-		| -------------------------------- | --------------------------------------------------------- |
-		| `StageOrientation.DEFAULT`       | The screen is in the default orientation (right-side up). |
-		| `StageOrientation.ROTATED_RIGHT` | The screen is rotated right.                              |
-		| `StageOrientation.ROTATED_LEFT`  | The screen is rotated left.                               |
-		| `StageOrientation.UPSIDE_DOWN`   | The screen is rotated upside down.                        |
-		| `StageOrientation.UNKNOWN`       | The application has not yet determined the initial orientation of the screen. You can add an event listener for the `orientationChange` event |
-
-		To set the stage orientation, use the `setOrientation()` method.
-	**/
-	public var orientation(get, never):StageOrientation;
 
 	/**
 		A value from the StageQuality class that specifies which rendering quality
@@ -878,37 +791,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	public var stageWidth(default, null):Int;
 
 	/**
-		The orientations supported by the current device.
-
-		You can use the orientation strings included in this list as parameters
-		for the `setOrientation()` method. Setting an unsupported orientation
-		fails without error.
-
-		The possible orientations include:
-
-		| StageOrientation constant        | Stage orientation                                         |
-		| -------------------------------- | --------------------------------------------------------- |
-		| `StageOrientation.DEFAULT`       | The screen is in the default orientation (right-side up). |
-		| `StageOrientation.ROTATED_RIGHT` | The screen is rotated right.                              |
-		| `StageOrientation.ROTATED_LEFT`  | The screen is rotated left.                               |
-		| `StageOrientation.UPSIDE_DOWN`   | The screen is rotated upside down.                        |
-
-		_OpenFL target support:_ Returns orientation values when targeting Adobe
-		AIR only. On all other targets, returns an empty vector.
-
-		_Adobe AIR profile support:_ This feature is supported on mobile
-		devices, but it is not supported on desktop operating systems or AIR for
-		TV devices. You can test for support at run time using the
-		`Stage.supportsOrientationChange` property. See
-		[AIR Profile Support](http://help.adobe.com/en_US/air/build/WS144092a96ffef7cc16ddeea2126bb46b82f-8000.html)
-		for more information regarding API support across multiple profiles.
-
-		@see `Stage.setOrientation()`
-		@see `Stage.orientation`
-	**/
-	public var supportedOrientations(get, never):Vector<StageOrientation>;
-
-	/**
 		The associated Lime Window instance for this Stage.
 	**/
 	public var window(default, null):Window;
@@ -1001,7 +883,7 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __fullScreenSourceRect:Rectangle;
 	@:noCompletion private var __invalidated:Bool;
-	@:noCompletion private var __lastClickTime:Int;
+	@:noCompletion private var __lastClickTime:Float;
 	@:noCompletion private var __lastClickTarget:InteractiveObject;
 	@:noCompletion private var __logicalWidth:Int;
 	@:noCompletion private var __logicalHeight:Int;
@@ -1013,8 +895,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	@:noCompletion private var __mouseOverTarget:InteractiveObject;
 	@:noCompletion private var __mouseX:Float;
 	@:noCompletion private var __mouseY:Float;
-	@:noCompletion private var __untransformedMouseX:Float;
-	@:noCompletion private var __untransformedMouseY:Float;
 	@:noCompletion private var __pendingMouseEvent:Bool;
 	@:noCompletion private var __pendingMouseX:Int;
 	@:noCompletion private var __pendingMouseY:Int;
@@ -1032,7 +912,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	#if lime
 	@:noCompletion private var __primaryTouch:Touch;
 	#end
-	private var __oldStageOrientation:StageOrientation = UNKNOWN;
 
 	#if openfljs
 	@:noCompletion private static function __init__()
@@ -1099,12 +978,10 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		__colorString = "#FFFFFF";
 		__contentsScaleFactor = 1;
 		__currentTabOrderIndex = 0;
-		__deltaTime = 0;
+		__deltaTime = 0.0;
 		__displayState = NORMAL;
 		__mouseX = 0;
 		__mouseY = 0;
-		__untransformedMouseX = 0;
-		__untransformedMouseY = 0;
 		__lastClickTime = 0;
 		__logicalWidth = 0;
 		__logicalHeight = 0;
@@ -1288,51 +1165,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		return pos.clone();
 	}
 
-	/**
-		Sets the stage to the specified orientation.
-
-		Set the `newOrientation` parameter to one of the following four values
-		defined as constants in the StageOrientation class:
-
-		| StageOrientation constant        | Stage orientation                                         |
-		| -------------------------------- | --------------------------------------------------------- |
-		| `StageOrientation.DEFAULT`       | The screen is in the default orientation (right-side up). |
-		| `StageOrientation.ROTATED_RIGHT` | The screen is rotated right.                              |
-		| `StageOrientation.ROTATED_LEFT`  | The screen is rotated left.                               |
-		| `StageOrientation.UPSIDE_DOWN`   | The screen is rotated upside down.                        |
-
-		Do not set the parameter to `StageOrientation.UNKNOWN` or any string
-		value other than those listed in the table.
-
-		Check the list provided by the `supportedOrientations` property to
-		determine which orientations are supported by the current device.
-
-		Setting the orientation is an asynchronous operation. It is not
-		guaranteed to be complete immediately after you call the
-		`setOrientation()` method. Add an event listener for the
-		`orientationChange` event to determine when the orientation change is
-		complete.
-
-		**Note:** The `setOrientation()` method does not cause an
-		`orientationChanging` event to be dispatched.
-
-		_OpenFL target support:_ May be called when targeting Adobe AIR only.
-		Calls to this method are always ignored on all other targets. Orientation
-		may be restricted at build-time only in a project.xml file using
-		`<app orientation="landscape"/>` or `<app orientation="portrait"/>`.
-
-		_Adobe AIR profile support:_ This feature is supported on mobile
-		devices, but it is not supported on desktop operating systems or AIR for
-		TV devices. You can test for support at run time using the
-		`Stage.supportsOrientationChange` property. See
-		[AIR Profile Support](http://help.adobe.com/en_US/air/build/WS144092a96ffef7cc16ddeea2126bb46b82f-8000.html)
-		for more information regarding API support across multiple profiles.
-
-		@see `Stage.supportedOrientations`
-		@see `Stage.orientation`
-	**/
-	public function setOrientation(newOrientation:StageOrientation):Void {}
-
 	@SuppressWarnings("checkstyle:Dynamic")
 	@:noCompletion private function __broadcastEvent(event:Event):Void
 	{
@@ -1381,9 +1213,7 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 				#if openfl_dpi_aware
 				context3D.configureBackBuffer(windowWidth, windowHeight, 0, true, true, true);
 				#else
-				var unscaledWindowWidth = Std.int(window.width);
-				var unscaledWindowHeight = Std.int(window.height);
-				context3D.configureBackBuffer(unscaledWindowWidth, unscaledWindowHeight, 0, true, true, true);
+				context3D.configureBackBuffer(stageWidth, stageHeight, 0, true, true, true);
 				#end
 				context3D.present();
 				__renderer = new OpenGLRenderer(context3D);
@@ -1409,6 +1239,8 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 
 		if (__renderer != null)
 		{
+			__renderer.__clear();
+
 			__renderer.__allowSmoothing = (quality != LOW);
 			__renderer.__pixelRatio = #if openfl_disable_hdpi 1 #else window.scale #end;
 			__renderer.__worldTransform = __displayMatrix;
@@ -1452,33 +1284,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		{
 			__onMouse(MouseEvent.MOUSE_MOVE, __pendingMouseX, __pendingMouseY, 0);
 			__pendingMouseEvent = false;
-		}
-		else if (__mouseOverTarget != null)
-		{
-			// to perfectly match flash's behavior, we should probably do a
-			// full __hitTest() here instead. however, this is still
-			// significantly better than what we had before, and we should
-			// probably test the performance of a full __hitTest() before
-			// switching to it.
-			if (__mouseOverTarget.__transformDirty || __mouseOverTarget.stage == null || !__mouseOverTarget.visible || !__mouseOverTarget.mouseEnabled)
-			{
-				__onMouse(null, __untransformedMouseX, __untransformedMouseY, 0);
-			}
-			else
-			{
-				var current:DisplayObjectContainer = __mouseOverTarget.parent;
-				while (current != null)
-				{
-					// parents get mostly similar checks to __mouseOverTarget,
-					// but switch to mouseChildren instead of mouseEnabled.
-					if (current.__transformDirty || current.stage == null || !current.visible || !current.mouseChildren)
-					{
-						__onMouse(null, __untransformedMouseX, __untransformedMouseY, 0);
-						break;
-					}
-					current = current.parent;
-				}
-			}
 		}
 	}
 
@@ -1689,8 +1494,10 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 
 		if (!event.__preventDefault)
 		{
+			// #if mobile
 			Log.println(CallStack.toString(CallStack.exceptionStack()));
 			Log.println(Std.string(e));
+			// #end
 
 			#if (cpp && !cppia)
 			untyped __cpp__("throw e");
@@ -2012,7 +1819,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		window.onActivate.add(__onLimeWindowActivate.bind(window));
 		window.onClose.add(__onLimeWindowClose.bind(window), false, -9000);
 		window.onDeactivate.add(__onLimeWindowDeactivate.bind(window));
-		window.onDropFile.add(__onLimeWindowDropFile.bind(window));
 		window.onEnter.add(__onLimeWindowEnter.bind(window));
 		window.onExpose.add(__onLimeWindowExpose.bind(window));
 		window.onFocusIn.add(__onLimeWindowFocusIn.bind(window));
@@ -2250,29 +2056,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		}
 	}
 
-	#if (lime >= "8.3.0")
-	@:noCompletion private function __onLimeDisplayOrientationChange(display:Int, orientation:Orientation):Void
-	{
-		var newStageOrientation:StageOrientation;
-		switch (orientation)
-		{
-			case PORTRAIT:
-				newStageOrientation = DEFAULT;
-			case PORTRAIT_FLIPPED:
-				newStageOrientation = UPSIDE_DOWN;
-			case LANDSCAPE:
-				newStageOrientation = ROTATED_LEFT;
-			case LANDSCAPE_FLIPPED:
-				newStageOrientation = ROTATED_RIGHT;
-			default:
-				newStageOrientation = UNKNOWN;
-		}
-		var oldStageOrientation = __oldStageOrientation;
-		__oldStageOrientation = newStageOrientation;
-		dispatchEvent(new StageOrientationEvent(StageOrientationEvent.ORIENTATION_CHANGE, true, false, oldStageOrientation, newStageOrientation));
-	}
-	#end
-
 	@:noCompletion private function __renderAfterEvent():Void
 	{
 		#if (cpp || hl || neko)
@@ -2436,8 +2219,24 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		#end
 
 		__renderable = true;
-		__enterFrame(__deltaTime);
-		__deltaTime = 0;
+
+		if (__uncaughtErrorEvents.__enabled)
+		{
+			try
+			{
+				__enterFrame(__deltaTime);
+			}
+			catch (e:Dynamic)
+			{
+				__handleError(e);
+			}
+		}
+		else
+		{
+			__enterFrame(__deltaTime);
+		}
+
+		__deltaTime = 0.0;
 
 		var cancelled = __render(context);
 		if (cancelled)
@@ -2591,28 +2390,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		{
 			__createRenderer();
 		}
-
-		#if (lime >= "8.3.0")
-		if (window.display != null)
-		{
-			// StageOrientationEvent references both the old and new
-			// orientations, so save the initial orientation for the first time
-			// that the event is dispatched
-			switch (window.display.orientation)
-			{
-				case PORTRAIT:
-					__oldStageOrientation = DEFAULT;
-				case PORTRAIT_FLIPPED:
-					__oldStageOrientation = UPSIDE_DOWN;
-				case LANDSCAPE:
-					__oldStageOrientation = ROTATED_LEFT;
-				case LANDSCAPE_FLIPPED:
-					__oldStageOrientation = ROTATED_RIGHT;
-				default:
-					__oldStageOrientation = UNKNOWN;
-			}
-		}
-		#end
 	}
 
 	@:noCompletion private function __onLimeWindowDeactivate(window:Window):Void
@@ -2622,8 +2399,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		// __primaryTouch = null;
 		// __broadcastEvent (new Event (Event.DEACTIVATE));
 	}
-
-	@:noCompletion private function __onLimeWindowDropFile(window:Window, file:String):Void {}
 
 	@:noCompletion private function __onLimeWindowEnter(window:Window):Void
 	{
@@ -2786,9 +2561,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	{
 		if (button > 2) return;
 
-		__untransformedMouseX = x;
-		__untransformedMouseY = y;
-
 		var targetPoint = Point.__pool.get();
 		targetPoint.setTo(x, y);
 		__displayMatrix.__transformInversePoint(targetPoint);
@@ -2814,164 +2586,149 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		var clickType:String = null;
 		var supportsClickCount = false;
 
-		if (type != null)
+		switch (type)
 		{
-			switch (type)
-			{
-				case MouseEvent.MOUSE_DOWN:
-					if (focus != null)
+			case MouseEvent.MOUSE_DOWN:
+				if (focus != null)
+				{
+					if (focus != target)
 					{
-						if (focus != target)
-						{
-							var focusEvent = new FocusEvent(FocusEvent.MOUSE_FOCUS_CHANGE, true, true, target, false, 0);
-							focus.dispatchEvent(focusEvent);
+						var focusEvent = new FocusEvent(FocusEvent.MOUSE_FOCUS_CHANGE, true, true, target, false, 0);
+						focus.dispatchEvent(focusEvent);
 
-							if (!focusEvent.isDefaultPrevented())
+						if (!focusEvent.isDefaultPrevented())
+						{
+							if (target.__allowMouseFocus())
 							{
-								if (target.__allowMouseFocus())
-								{
-									focus = target;
-								}
-								else
-								{
-									focus = null;
-								}
+								focus = target;
+							}
+							else
+							{
+								focus = null;
 							}
 						}
 					}
+				}
+				else
+				{
+					if (target.__allowMouseFocus())
+					{
+						focus = target;
+					}
 					else
 					{
-						if (target.__allowMouseFocus())
-						{
-							focus = target;
-						}
-						else
-						{
-							focus = null;
-						}
+						focus = null;
 					}
+				}
 
-					__mouseDownLeft = target;
-					if (__lastClickTarget != target)
+				__mouseDownLeft = target;
+				if (__lastClickTarget != target)
+				{
+					// the target has changed since the previous click
+					// so we can't double-click the old target anymore
+					__lastClickTarget = null;
+					__lastClickTime = 0;
+				}
+				MouseEvent.__buttonDown = true;
+				supportsClickCount = true;
+
+			case MouseEvent.MIDDLE_MOUSE_DOWN:
+				__mouseDownMiddle = target;
+				supportsClickCount = true;
+
+			case MouseEvent.RIGHT_MOUSE_DOWN:
+				__mouseDownRight = target;
+				supportsClickCount = true;
+
+			case MouseEvent.MOUSE_UP:
+				if (__mouseDownLeft != null)
+				{
+					MouseEvent.__buttonDown = false;
+
+					if (__mouseDownLeft == target)
 					{
-						// the target has changed since the previous click
-						// so we can't double-click the old target anymore
-						__lastClickTarget = null;
-						__lastClickTime = 0;
+						clickType = MouseEvent.CLICK;
 					}
-					MouseEvent.__buttonDown = true;
-					supportsClickCount = true;
-
-				case MouseEvent.MIDDLE_MOUSE_DOWN:
-					__mouseDownMiddle = target;
-					supportsClickCount = true;
-
-				case MouseEvent.RIGHT_MOUSE_DOWN:
-					__mouseDownRight = target;
-					supportsClickCount = true;
-
-				case MouseEvent.MOUSE_UP:
-					if (__mouseDownLeft != null)
+					else
 					{
-						MouseEvent.__buttonDown = false;
+						var event:MouseEvent = null;
 
-						if (__mouseDownLeft == target)
-						{
-							clickType = MouseEvent.CLICK;
-						}
-						else
-						{
-							var event:MouseEvent = null;
+						#if openfl_pool_events
+						event = MouseEvent.__pool.get();
+						event.type = MouseEvent.RELEASE_OUTSIDE;
+						event.stageX = __mouseX;
+						event.stageY = __mouseY;
+						event.localX = __mouseX;
+						event.localY = __mouseY;
+						event.target = this;
+						event.clickCount = 0;
+						#else
+						event = MouseEvent.__create(MouseEvent.RELEASE_OUTSIDE, 1, 0, __mouseX, __mouseY, new Point(__mouseX, __mouseY), this);
+						#end
 
-							#if openfl_pool_events
-							event = MouseEvent.__pool.get();
-							event.type = MouseEvent.RELEASE_OUTSIDE;
-							event.stageX = __mouseX;
-							event.stageY = __mouseY;
-							event.localX = __mouseX;
-							event.localY = __mouseY;
-							event.target = this;
-							event.clickCount = 0;
-							#else
-							event = MouseEvent.__create(MouseEvent.RELEASE_OUTSIDE, 1, 0, __mouseX, __mouseY, new Point(__mouseX, __mouseY), this);
-							#end
+						__mouseDownLeft.dispatchEvent(event);
 
-							__mouseDownLeft.dispatchEvent(event);
-
-							#if openfl_pool_events
-							MouseEvent.__pool.release(event);
-							#end
-						}
-
-						__mouseDownLeft = null;
-					}
-					supportsClickCount = true;
-
-				case MouseEvent.MIDDLE_MOUSE_UP:
-					if (__mouseDownMiddle == target)
-					{
-						clickType = MouseEvent.MIDDLE_CLICK;
+						#if openfl_pool_events
+						MouseEvent.__pool.release(event);
+						#end
 					}
 
-					__mouseDownMiddle = null;
-					supportsClickCount = true;
+					__mouseDownLeft = null;
+				}
+				supportsClickCount = true;
 
-				case MouseEvent.RIGHT_MOUSE_UP:
-					if (__mouseDownRight == target)
-					{
-						clickType = MouseEvent.RIGHT_CLICK;
-					}
+			case MouseEvent.MIDDLE_MOUSE_UP:
+				if (__mouseDownMiddle == target)
+				{
+					clickType = MouseEvent.MIDDLE_CLICK;
+				}
 
-					__mouseDownRight = null;
-					supportsClickCount = true;
+				__mouseDownMiddle = null;
+				supportsClickCount = true;
 
-				default:
-			}
+			case MouseEvent.RIGHT_MOUSE_UP:
+				if (__mouseDownRight == target)
+				{
+					clickType = MouseEvent.RIGHT_CLICK;
+				}
+
+				__mouseDownRight = null;
+				supportsClickCount = true;
+
+			default:
 		}
 
 		var localPoint = Point.__pool.get();
-		// we're allowing type to be null, so we might not dispatch an event
-		// in this section.
-		// there are times that we want to see if the mouse over target has
-		// changed, to dispatch over/out events, even if the mouse hasn't moved.
-		// instead, it's possible for the state of the old mouse over target to
-		// change, such as being removed from the stage, being set invisible, or
-		// transformed so that it no longer appears under the mouse.
-		if (type != null)
+		var event:MouseEvent = null;
+
+		var clickCount = #if (lime >= "8.1.0") supportsClickCount ? window.clickCount : 0 #else 0 #end;
+		#if openfl_pool_events
+		event = MouseEvent.__pool.get();
+		event.type = type;
+		event.stageX = __mouseX;
+		event.stageY = __mouseY;
+		var local = target.__globalToLocal(targetPoint, localPoint);
+		event.localX = local.x;
+		event.localY = local.y;
+		event.target = target;
+		event.clickCount = clickCount;
+		#else
+		event = MouseEvent.__create(type, button, clickCount, __mouseX, __mouseY, target.__globalToLocal(targetPoint, localPoint), target);
+		#end
+
+		__dispatchStack(event, stack);
+
+		if (event.__updateAfterEventFlag)
 		{
-			var event:MouseEvent = null;
-
-			var clickCount = #if (lime >= "8.1.0") supportsClickCount ? window.clickCount : 0 #else 0 #end;
-			#if openfl_pool_events
-			event = MouseEvent.__pool.get();
-			event.type = type;
-			event.stageX = __mouseX;
-			event.stageY = __mouseY;
-			var local = target.__globalToLocal(targetPoint, localPoint);
-			event.localX = local.x;
-			event.localY = local.y;
-			event.target = target;
-			event.clickCount = clickCount;
-			#else
-			event = MouseEvent.__create(type, button, clickCount, __mouseX, __mouseY, target.__globalToLocal(targetPoint, localPoint), target);
-			#end
-
-			__dispatchStack(event, stack);
-
-			if (event.__updateAfterEventFlag)
-			{
-				__renderAfterEvent();
-			}
-
-			#if openfl_pool_events
-			MouseEvent.__pool.release(event);
-			#end
+			__renderAfterEvent();
 		}
+
+		#if openfl_pool_events
+		MouseEvent.__pool.release(event);
+		#end
 
 		if (clickType != null)
 		{
-			var event:MouseEvent = null;
-
 			#if openfl_pool_events
 			event = MouseEvent.__pool.get();
 			event.type = clickType;
@@ -3079,12 +2836,12 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 			}
 		}
 
+		var event:MouseEvent;
+
 		if (target != __mouseOverTarget)
 		{
 			if (__mouseOverTarget != null)
 			{
-				var event:MouseEvent = null;
-
 				#if openfl_pool_events
 				event = MouseEvent.__pool.get();
 				event.type = MouseEvent.MOUSE_OUT;
@@ -3108,7 +2865,7 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 				}
 
 				#if openfl_pool_events
-				MouseEvent.__pool.release(event);
+				MouseEvent.__pool.release(cast event);
 				#end
 			}
 		}
@@ -3122,39 +2879,32 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 			{
 				__rollOutStack.remove(item);
 
-				// ROLL_OUT doesn't bubble, so we can skip dispatch if we don't
-				// have a listener
-				if (item.hasEventListener(MouseEvent.ROLL_OUT))
+				#if openfl_pool_events
+				event = MouseEvent.__pool.get();
+				event.type = MouseEvent.ROLL_OUT;
+				event.stageX = __mouseX;
+				event.stageY = __mouseY;
+				var local = __mouseOverTarget.__globalToLocal(targetPoint, localPoint);
+				event.localX = local.x;
+				event.localY = local.y;
+				event.target = item;
+				event.clickCount = 0;
+				#else
+				event = MouseEvent.__create(MouseEvent.ROLL_OUT, button, 0, __mouseX, __mouseY, __mouseOverTarget.__globalToLocal(targetPoint, localPoint),
+					cast item);
+				#end
+				event.bubbles = false;
+
+				__dispatchTarget(item, event);
+
+				if (event.__updateAfterEventFlag)
 				{
-					var event:MouseEvent = null;
-
-					#if openfl_pool_events
-					event = MouseEvent.__pool.get();
-					event.type = MouseEvent.ROLL_OUT;
-					event.stageX = __mouseX;
-					event.stageY = __mouseY;
-					var local = __mouseOverTarget.__globalToLocal(targetPoint, localPoint);
-					event.localX = local.x;
-					event.localY = local.y;
-					event.target = item;
-					event.clickCount = 0;
-					#else
-					event = MouseEvent.__create(MouseEvent.ROLL_OUT, button, 0, __mouseX, __mouseY,
-						__mouseOverTarget.__globalToLocal(targetPoint, localPoint), cast item);
-					#end
-					event.bubbles = false;
-
-					__dispatchTarget(item, event);
-
-					if (event.__updateAfterEventFlag)
-					{
-						__renderAfterEvent();
-					}
-
-					#if openfl_pool_events
-					MouseEvent.__pool.release(event);
-					#end
+					__renderAfterEvent();
 				}
+
+				#if openfl_pool_events
+				MouseEvent.__pool.release(cast event);
+				#end
 			}
 			else
 			{
@@ -3162,33 +2912,22 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 			}
 		}
 
-		var newMouseOverTarget:InteractiveObject = null;
-		if (target != __mouseOverTarget)
-		{
-			newMouseOverTarget = target;
-			__mouseOverTarget = target;
-			__mouseOutStack = stack;
-		}
-
 		for (item in stack)
 		{
 			if (__rollOutStack.indexOf(item) == -1 && __mouseOverTarget != null)
 			{
-				// ROLL_OVER doesn't bubble, so we can skip dispatch if we don't
-				// have a listener
 				if (item.hasEventListener(MouseEvent.ROLL_OVER))
 				{
-					var event:MouseEvent = null;
-
 					#if openfl_pool_events
-					event = MouseEvent.__pool.get();
-					event.type = MouseEvent.ROLL_OVER;
-					event.stageX = __mouseX;
-					event.stageY = __mouseY;
+					var mouseEvent = MouseEvent.__pool.get();
+					mouseEvent.type = MouseEvent.ROLL_OVER;
+					mouseEvent.stageX = __mouseX;
+					mouseEvent.stageY = __mouseY;
 					var local = __mouseOverTarget.__globalToLocal(targetPoint, localPoint);
-					event.localX = local.x;
-					event.localY = local.y;
-					event.target = item;
+					mouseEvent.localX = local.x;
+					mouseEvent.localY = local.y;
+					mouseEvent.target = item;
+					event = mouseEvent;
 					event.clickCount = 0;
 					#else
 					event = MouseEvent.__create(MouseEvent.ROLL_OVER, button, 0, __mouseX, __mouseY,
@@ -3208,42 +2947,46 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 					#end
 				}
 
-				// a ROLL_OUT listener could be added later, so don't check if
-				// we have a listener here
-				__rollOutStack.push(item);
+				if (item.hasEventListener(MouseEvent.ROLL_OUT) || item.hasEventListener(MouseEvent.ROLL_OVER))
+				{
+					__rollOutStack.push(item);
+				}
 			}
 		}
 
-		if (newMouseOverTarget != null)
+		if (target != __mouseOverTarget)
 		{
-			var event:MouseEvent = null;
-
-			#if openfl_pool_events
-			event = MouseEvent.__pool.get();
-			// MOUSE_OVER should be dispatched after ROLL_OVER
-			event.type = MouseEvent.MOUSE_OVER;
-			event.stageX = __mouseX;
-			event.stageY = __mouseY;
-			var local = newMouseOverTarget.__globalToLocal(targetPoint, localPoint);
-			event.localX = local.x;
-			event.localY = local.y;
-			event.target = newMouseOverTarget;
-			event.clickCount = 0;
-			#else
-			event = MouseEvent.__create(MouseEvent.MOUSE_OVER, button, 0, __mouseX, __mouseY, newMouseOverTarget.__globalToLocal(targetPoint, localPoint),
-				cast newMouseOverTarget);
-			#end
-
-			__dispatchStack(event, stack);
-
-			if (event.__updateAfterEventFlag)
+			if (target != null)
 			{
-				__renderAfterEvent();
+				#if openfl_pool_events
+				var mouseEvent = MouseEvent.__pool.get();
+				mouseEvent.type = MouseEvent.MOUSE_OVER;
+				mouseEvent.stageX = __mouseX;
+				mouseEvent.stageY = __mouseY;
+				var local = target.__globalToLocal(targetPoint, localPoint);
+				mouseEvent.localX = local.x;
+				mouseEvent.localY = local.y;
+				mouseEvent.target = target;
+				event = mouseEvent;
+				event.clickCount = 0;
+				#else
+				event = MouseEvent.__create(MouseEvent.MOUSE_OVER, button, 0, __mouseX, __mouseY, target.__globalToLocal(targetPoint, localPoint), cast target);
+				#end
+
+				__dispatchStack(event, stack);
+
+				if (event.__updateAfterEventFlag)
+				{
+					__renderAfterEvent();
+				}
+
+				#if openfl_pool_events
+				MouseEvent.__pool.release(cast event);
+				#end
 			}
 
-			#if openfl_pool_events
-			MouseEvent.__pool.release(event);
-			#end
+			__mouseOverTarget = target;
+			__mouseOutStack = stack;
 		}
 
 		if (__dragObject != null)
@@ -3524,9 +3267,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		application.onCreateWindow.add(__onLimeCreateWindow);
 		application.onUpdate.add(__onLimeUpdate);
 		application.onExit.add(__onLimeModuleExit, false, 0);
-		#if (lime >= "8.3.0")
-		application.onDisplayOrientationChange.add(__onLimeDisplayOrientationChange);
-		#end
 
 		for (gamepad in Gamepad.devices)
 		{
@@ -3540,50 +3280,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		Touch.onCancel.add(__onLimeTouchCancel);
 	}
 	#end
-
-	@:noCompletion private function __applyScaleAndAlign(windowWidth:Float, windowHeight:Float, scaleX:Float, scaleY:Float):Void
-	{
-		var scaledWidth = __logicalWidth * scaleX;
-		var scaledHeight = __logicalHeight * scaleY;
-
-		var visibleWidth = __logicalWidth - Math.round((scaledWidth - windowWidth) / scaleX);
-		var visibleHeight = __logicalHeight - Math.round((scaledHeight - windowHeight) / scaleY);
-		var visibleX = 0.0;
-		var visibleY = 0.0;
-		switch (align)
-		{
-			case null:
-				// it is undocumented, but it is possible to align the stage in
-				// Flash to the center both horizontally and vertically by
-				// setting stage.align to an invalid value, such as an empty
-				// string ("")
-				visibleX = Math.round((__logicalWidth - visibleWidth) / 2);
-				visibleY = Math.round((__logicalHeight - visibleHeight) / 2);
-			case BOTTOM_RIGHT:
-				visibleX = Math.round(__logicalWidth - visibleWidth);
-				visibleY = Math.round(__logicalHeight - visibleHeight);
-			case BOTTOM:
-				visibleX = Math.round((__logicalWidth - visibleWidth) / 2);
-				visibleY = Math.round(__logicalHeight - visibleHeight);
-			case BOTTOM_LEFT:
-				visibleY = Math.round(__logicalHeight - visibleHeight);
-			case RIGHT:
-				visibleX = Math.round(__logicalWidth - visibleWidth);
-				visibleY = Math.round((__logicalHeight - visibleHeight) / 2);
-			case LEFT:
-				visibleY = Math.round((__logicalHeight - visibleHeight) / 2);
-			case TOP_RIGHT:
-				visibleX = Math.round(__logicalWidth - visibleWidth);
-			case TOP:
-				visibleX = Math.round((__logicalWidth - visibleWidth) / 2);
-			default: // TOP_LEFT
-		}
-
-		__displayMatrix.translate(-visibleX, -visibleY);
-		__displayMatrix.scale(scaleX, scaleY);
-
-		__displayRect.setTo(visibleX, visibleY, visibleWidth, visibleHeight);
-	}
 
 	@:noCompletion private function __resize():Void
 	{
@@ -3636,27 +3332,50 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 				switch (scaleMode)
 				{
 					case EXACT_FIT:
-						var displayScaleX = windowWidth / __logicalWidth;
-						var displayScaleY = windowHeight / __logicalHeight;
+						var displayScaleX = windowWidth / stageWidth;
+						var displayScaleY = windowHeight / stageHeight;
 
 						__displayMatrix.scale(displayScaleX, displayScaleY);
-						__displayRect.setTo(0, 0, __logicalWidth, __logicalHeight);
+						__displayRect.setTo(0, 0, stageWidth, stageHeight);
 
 					case NO_BORDER:
-						var scaleX = windowWidth / __logicalWidth;
-						var scaleY = windowHeight / __logicalHeight;
+						var scaleX = windowWidth / stageWidth;
+						var scaleY = windowHeight / stageHeight;
 
 						var scale = Math.max(scaleX, scaleY);
 
-						__applyScaleAndAlign(windowWidth, windowHeight, scale, scale);
+						var scaledWidth = stageWidth * scale;
+						var scaledHeight = stageHeight * scale;
+
+						var visibleWidth = stageWidth - Math.round((scaledWidth - windowWidth) / scale);
+						var visibleHeight = stageHeight - Math.round((scaledHeight - windowHeight) / scale);
+						var visibleX = Math.round((stageWidth - visibleWidth) / 2);
+						var visibleY = Math.round((stageHeight - visibleHeight) / 2);
+
+						__displayMatrix.translate(-visibleX, -visibleY);
+						__displayMatrix.scale(scale, scale);
+
+						__displayRect.setTo(visibleX, visibleY, visibleWidth, visibleHeight);
 
 					default: // SHOW_ALL
 
-						var scaleX = windowWidth / __logicalWidth;
-						var scaleY = windowHeight / __logicalHeight;
+						var scaleX = windowWidth / stageWidth;
+						var scaleY = windowHeight / stageHeight;
+
 						var scale = Math.min(scaleX, scaleY);
 
-						__applyScaleAndAlign(windowWidth, windowHeight, scale, scale);
+						var scaledWidth = stageWidth * scale;
+						var scaledHeight = stageHeight * scale;
+
+						var visibleWidth = stageWidth - Math.round((scaledWidth - windowWidth) / scale);
+						var visibleHeight = stageHeight - Math.round((scaledHeight - windowHeight) / scale);
+						var visibleX = Math.round((stageWidth - visibleWidth) / 2);
+						var visibleY = Math.round((stageHeight - visibleHeight) / 2);
+
+						__displayMatrix.translate(-visibleX, -visibleY);
+						__displayMatrix.scale(scale, scale);
+
+						__displayRect.setTo(visibleX, visibleY, visibleWidth, visibleHeight);
 				}
 			}
 		}
@@ -3666,9 +3385,7 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 			#if openfl_dpi_aware
 			context3D.configureBackBuffer(windowWidth, windowHeight, 0, true, true, true);
 			#else
-			var unscaledWindowWidth = Std.int(window.width);
-			var unscaledWindowHeight = Std.int(window.height);
-			context3D.configureBackBuffer(unscaledWindowWidth, unscaledWindowHeight, 0, true, true, true);
+			context3D.configureBackBuffer(stageWidth, stageHeight, 0, true, true, true);
 			#end
 		}
 
@@ -3770,9 +3487,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		application.onCreateWindow.remove(__onLimeCreateWindow);
 		application.onUpdate.remove(__onLimeUpdate);
 		application.onExit.remove(__onLimeModuleExit);
-		#if (lime >= "8.3.0")
-		application.onDisplayOrientationChange.remove(__onLimeDisplayOrientationChange);
-		#end
 
 		Gamepad.onConnect.remove(__onLimeGamepadConnect);
 		Touch.onStart.remove(__onLimeTouchStart);
@@ -3831,10 +3545,13 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 
 				if (updateChildren)
 				{
+					// #if dom
 					if (DisplayObject.__supportDOM)
 					{
 						__wasDirty = true;
 					}
+
+					// #end
 
 					// __dirty = false;
 				}
@@ -3862,26 +3579,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	#end
 
 	// Get & Set Methods
-	@:noCompletion private static function get_supportsOrientationChange():Bool
-	{
-		#if (lime >= "8.3.0")
-		#if (ios || android)
-		return true;
-		#end
-		#end
-		return false;
-	}
-
-	@:noCompletion private function get_autoOrients():Bool
-	{
-		return false;
-	}
-
-	@:noCompletion private function set_autoOrients(value:Bool):Bool
-	{
-		return false;
-	}
-
 	@:noCompletion private function get_color():Null<Int>
 	{
 		return __color;
@@ -3919,26 +3616,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	@:noCompletion private function get_contentsScaleFactor():Float
 	{
 		return __contentsScaleFactor;
-	}
-
-	@:noCompletion private function get_deviceOrientation():StageOrientation
-	{
-		#if (lime >= "8.3.0")
-		switch (application.deviceOrientation)
-		{
-			case LANDSCAPE:
-				return StageOrientation.ROTATED_LEFT;
-			case LANDSCAPE_FLIPPED:
-				return StageOrientation.ROTATED_RIGHT;
-			case PORTRAIT:
-				return StageOrientation.DEFAULT;
-			case PORTRAIT_FLIPPED:
-				return StageOrientation.UPSIDE_DOWN;
-			default:
-				return StageOrientation.UNKNOWN;
-		}
-		#end
-		return StageOrientation.UNKNOWN;
 	}
 
 	@:noCompletion private function get_displayState():StageDisplayState
@@ -4075,30 +3752,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		return __mouseY;
 	}
 
-	@:noCompletion private function get_orientation():StageOrientation
-	{
-		#if (lime >= "8.3.0")
-		var display = window.display;
-		if (display != null)
-		{
-			switch (display.orientation)
-			{
-				case LANDSCAPE:
-					return StageOrientation.ROTATED_RIGHT;
-				case LANDSCAPE_FLIPPED:
-					return StageOrientation.ROTATED_LEFT;
-				case PORTRAIT:
-					return StageOrientation.DEFAULT;
-				case PORTRAIT_FLIPPED:
-					return StageOrientation.UPSIDE_DOWN;
-				default:
-					return StageOrientation.UNKNOWN;
-			}
-		}
-		#end
-		return StageOrientation.UNKNOWN;
-	}
-
 	@:noCompletion private function get_quality():StageQuality
 	{
 		return __quality;
@@ -4145,11 +3798,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	@:noCompletion private override function set_scaleY(value:Float):Float
 	{
 		return 0;
-	}
-
-	@:noCompletion private function get_supportedOrientations():Vector<StageOrientation>
-	{
-		return new Vector<StageOrientation>();
 	}
 
 	@:noCompletion private override function get_tabEnabled():Bool
